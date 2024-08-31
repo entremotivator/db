@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import pymysql
 
 # Function to establish a database connection
 def get_db_connection(username, password, host, database):
