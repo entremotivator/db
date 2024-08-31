@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pymysql
+from pymysql.cursors import DictCursor
 
 # Function to establish a database connection
 def get_db_connection(username, password, host, database):
@@ -10,7 +11,7 @@ def get_db_connection(username, password, host, database):
             user=username,
             password=password,
             database=database,
-            cursorclass=pymysql.cursors.DictCursor
+            cursorclass=DictCursor
         )
         st.success("Successfully connected to the database!")
         return connection
