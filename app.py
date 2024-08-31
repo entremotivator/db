@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+import pymysql
 
 # Function to establish a database connection
 def get_db_connection(username, password, host, database):
@@ -113,7 +114,7 @@ if engine:
         selected_id = st.selectbox("Select Profile ID", df["ID"])
         
         if selected_id:
-            selected_profile = df[df["ID"] == selected_id].iloc[0]
+            selected_profile = df[df["ID"] == int(selected_id)].iloc[0]
             
             with st.form(key="edit_profile_form"):
                 edit_name = st.text_input("Name", value=selected_profile["Name"])
@@ -127,10 +128,10 @@ if engine:
                 delete_button = st.form_submit_button("Delete Profile")
             
             if update_button:
-                update_customer_profile(engine, selected_id, edit_name, edit_business_name, edit_email, edit_phone, edit_address, edit_description)
+                update_customer_profile(engine, int(selected_id), edit_name, edit_business_name, edit_email, edit_phone, edit_address, edit_description)
             
             if delete_button:
-                delete_customer_profile(engine, selected_id)
+                delete_customer_profile(engine, int(selected_id))
     
     else:
         st.write("No profiles found.")
