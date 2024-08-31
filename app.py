@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+import pymysql
 # Try importing pymysql; handle the case where it's not available
 try:
     import pymysql
