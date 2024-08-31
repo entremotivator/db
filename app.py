@@ -1,20 +1,6 @@
 import streamlit as st
 import pandas as pd
-
-# Function to establish a database connection
-def get_db_connection(username, password, host, database):
-    try:
-        connection = pymysql.connect(
-            host=host,
-            user=username,
-            password=password,
-            database=database,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        return connection
-    except pymysql.MySQLError as e:
-        st.error(f"Error connecting to the database: {str(e)}")
-        return None
+import pymysql
 
 # Function to fetch customer profiles from the database
 def fetch_customer_profiles(connection):
@@ -79,10 +65,22 @@ with st.form(key="db_form"):
     db_name = st.text_input("Database Name")
     connect_button = st.form_submit_button("Connect")
 
-if connect_button and db_username and db_password and db_host and db_name:
-    connection = get_db_connection(db_username, db_password, db_host, db_name)
-else:
-    connection = None
+# Initialize the connection to None
+connection = None
+
+# Establish connection when the connect button is pressed
+if connect_button:
+    try:
+        connection = pymysql.connect(
+            host=db_host,
+            user=db_username,
+            password=db_password,
+            database=db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        st.success("Successfully connected to the database!")
+    except pymysql.MySQLError as e:
+        st.error(f"Error connecting to the database: {str(e)}")
 
 if connection:
     # Display profiles
@@ -144,6 +142,10 @@ if connection:
                 insert_customer_profile(connection, name, business_name, email, phone, address, description)
             else:
                 st.error("Please fill in all required fields.")
+    
+    # Close the connection when done
+    connection.close()
+
 else:
     st.warning("Please connect to the database to manage customer profiles.")
 
