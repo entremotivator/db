@@ -1,7 +1,13 @@
 import streamlit as st
 import pandas as pd
-import pymysql
-from pymysql.cursors import DictCursor
+
+# Try importing pymysql; handle the case where it's not available
+try:
+    import pymysql
+    from pymysql.cursors import DictCursor
+except ImportError:
+    st.error("pymysql library is required but not installed. Please add it to your requirements.")
+    st.stop()  # Stop the script if pymysql is not available
 
 # Function to establish a database connection
 def get_db_connection(username, password, host, database):
