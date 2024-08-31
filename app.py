@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-
+import pymysql
 # Function to establish a database connection
 def get_db_connection(username, password, host, database):
     try:
