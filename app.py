@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
-import pymysql
+
 # Try importing pymysql; handle the case where it's not available
 try:
     import pymysql
     from pymysql.cursors import DictCursor
 except ImportError:
-    st.error("pymysql library is required but not installed. Please add it to your requirements.")
+    st.error("The pymysql library is required but not installed. Please add it to your requirements.")
     st.stop()  # Stop the script if pymysql is not available
 
 # Function to establish a database connection
@@ -17,7 +17,8 @@ def get_db_connection(username, password, host, database):
             user=username,
             password=password,
             database=database,
-            cursorclass=DictCursor
+            cursorclass=DictCursor,
+            port=3306  # Ensure you use the correct port, default for MySQL is 3306
         )
         st.success("Successfully connected to the database!")
         return connection
@@ -85,7 +86,7 @@ st.subheader("Database Connection")
 with st.form(key="db_form"):
     db_username = st.text_input("Database Username")
     db_password = st.text_input("Database Password", type="password")
-    db_host = st.text_input("Database Host", value="localhost")
+    db_host = st.text_input("Database Host", value="localhost")  # Use the HostGator host details
     db_name = st.text_input("Database Name")
     connect_button = st.form_submit_button("Connect")
 
