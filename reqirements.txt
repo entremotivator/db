@@ -1,6 +1,6 @@
 sqlalchemy
 pandas
-pymysql==1.0.2
+pymysql
 streamlit
 MySQL >= 5.7
 MariaDB >= 10.3
