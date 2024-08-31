@@ -1,24 +1,19 @@
 import streamlit as st
 import pandas as pd
+import pymysql
+from pymysql.cursors import DictCursor
 
-# Try importing pymysql; handle the case where it's not available
-try:
-    import pymysql
-    from pymysql.cursors import DictCursor
-except ImportError:
-    st.error("The pymysql library is required but not installed. Please add it to your requirements.")
-    st.stop()  # Stop the script if pymysql is not available
-
-# Function to establish a database connection
-def get_db_connection(username, password, host, database):
+# Function to establish a database connection using credentials from Streamlit secrets
+def get_db_connection():
+    db_config = st.secrets["database"]
     try:
         connection = pymysql.connect(
-            host=host,
-            user=username,
-            password=password,
-            database=database,
+            host=db_config["host"],
+            user=db_config["user"],
+            password=db_config["password"],
+            database=db_config["database"],
             cursorclass=DictCursor,
-            port=3306  # Ensure you use the correct port, default for MySQL is 3306
+            port=3306  # Default MySQL port
         )
         st.success("Successfully connected to the database!")
         return connection
@@ -81,21 +76,8 @@ def delete_customer_profile(connection, profile_id):
 # Streamlit app layout
 st.title("Customer Business Profiles Management")
 
-# Database connection info form
-st.subheader("Database Connection")
-with st.form(key="db_form"):
-    db_username = st.text_input("Database Username")
-    db_password = st.text_input("Database Password", type="password")
-    db_host = st.text_input("Database Host", value="localhost")  # Use the HostGator host details
-    db_name = st.text_input("Database Name")
-    connect_button = st.form_submit_button("Connect")
-
-# Initialize the connection to None
-connection = None
-
-# Establish connection when the connect button is pressed
-if connect_button and db_username and db_password and db_host and db_name:
-    connection = get_db_connection(db_username, db_password, db_host, db_name)
+# Establish connection when the app starts
+connection = get_db_connection()
 
 if connection:
     # Display profiles
