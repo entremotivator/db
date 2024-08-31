@@ -1,12 +1,29 @@
 import streamlit as st
 import pandas as pd
-import pymysql  # Ensure pymysql is installed and available
+import pymysql
+
+# Function to establish a database connection
+def get_db_connection(username, password, host, database):
+    try:
+        connection = pymysql.connect(
+            host=host,
+            user=username,
+            password=password,
+            database=database,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        st.success("Successfully connected to the database!")
+        return connection
+    except pymysql.MySQLError as e:
+        st.error(f"Error connecting to the database: {str(e)}")
+        return None
 
 # Function to fetch customer profiles from the database
 def fetch_customer_profiles(connection):
+    query = "SELECT * FROM customer_profiles"
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM customer_profiles")
+            cursor.execute(query)
             profiles = cursor.fetchall()
             return profiles
     except pymysql.MySQLError as e:
@@ -69,18 +86,8 @@ with st.form(key="db_form"):
 connection = None
 
 # Establish connection when the connect button is pressed
-if connect_button:
-    try:
-        connection = pymysql.connect(
-            host=db_host,
-            user=db_username,
-            password=db_password,
-            database=db_name,
-            cursorclass=pymysql.cursors.DictCursor
-        )
-        st.success("Successfully connected to the database!")
-    except pymysql.MySQLError as e:
-        st.error(f"Error connecting to the database: {str(e)}")
+if connect_button and db_username and db_password and db_host and db_name:
+    connection = get_db_connection(db_username, db_password, db_host, db_name)
 
 if connection:
     # Display profiles
@@ -99,28 +106,29 @@ if connection:
         
         # Profile Editing and Deleting
         st.subheader("Edit or Delete a Profile")
-        selected_id = st.selectbox("Select Profile ID", df["id"])
-        
-        if selected_id:
-            selected_profile = df[df["id"] == selected_id].iloc[0]
+        if not df.empty:
+            selected_id = st.selectbox("Select Profile ID", df["id"])
             
-            with st.form(key="edit_profile_form"):
-                edit_name = st.text_input("Name", value=selected_profile["name"])
-                edit_business_name = st.text_input("Business Name", value=selected_profile["business_name"])
-                edit_email = st.text_input("Email", value=selected_profile["email"])
-                edit_phone = st.text_input("Phone", value=selected_profile["phone"])
-                edit_address = st.text_area("Address", value=selected_profile["address"])
-                edit_description = st.text_area("Description", value=selected_profile["description"])
+            if selected_id:
+                selected_profile = df[df["id"] == selected_id].iloc[0]
                 
-                update_button = st.form_submit_button("Update Profile")
-                delete_button = st.form_submit_button("Delete Profile")
-            
-            if update_button:
-                update_customer_profile(connection, selected_id, edit_name, edit_business_name, edit_email, edit_phone, edit_address, edit_description)
-            
-            if delete_button:
-                delete_customer_profile(connection, selected_id)
-    
+                with st.form(key="edit_profile_form"):
+                    edit_name = st.text_input("Name", value=selected_profile["name"])
+                    edit_business_name = st.text_input("Business Name", value=selected_profile["business_name"])
+                    edit_email = st.text_input("Email", value=selected_profile["email"])
+                    edit_phone = st.text_input("Phone", value=selected_profile["phone"])
+                    edit_address = st.text_area("Address", value=selected_profile["address"])
+                    edit_description = st.text_area("Description", value=selected_profile["description"])
+                    
+                    update_button = st.form_submit_button("Update Profile")
+                    delete_button = st.form_submit_button("Delete Profile")
+                
+                if update_button:
+                    update_customer_profile(connection, selected_id, edit_name, edit_business_name, edit_email, edit_phone, edit_address, edit_description)
+                
+                if delete_button:
+                    delete_customer_profile(connection, selected_id)
+        
     else:
         st.write("No profiles found.")
     
