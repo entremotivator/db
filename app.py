@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pymysql
+import pymysql  # Ensure pymysql is installed and available
 
 # Function to fetch customer profiles from the database
 def fetch_customer_profiles(connection):
